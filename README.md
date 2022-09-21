@@ -48,6 +48,10 @@ bin/kafka-topics --list  --bootstrap-server 192.168.6.127:9092
 
 to delete the topic run below command:
 
+./kafka-topics --delete --topic elastic-DEV3  --bootstrap-server 10.20.51.114:9092
+
+./kafka-topics --zookeeper 10.20.51.114:2182 --delete --topic elastic-DEV3
+
 ```
 #### Now i am going to create schemas:
 ```
