@@ -71,7 +71,7 @@ curl http://192.168.6.127:8081/subjects/ingestion-DEV3-value/versions -H 'Conten
 
 to list the schemas run below command:
 
-curl -X GET  http://10.20.51.114:8083/schemas -i
+curl -X GET  http://192.168.6.127:8081/schemas -i
 
 to delete the schemas run below command:
 
