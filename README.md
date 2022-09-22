@@ -131,7 +131,7 @@ sudo systemctl restart postgresql
 - psql -U postgres -h 192.168.6.127 -p 5432 dmat_test
 
 # Step_03 installing Elasticsearch:
-192.168.6.119 -- workernode
+Step-2 Elasticsearch only
 ```
 Step 1 — Installing and Configuring Elasticsearch
 curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
@@ -159,6 +159,251 @@ network.host: 0.0.0.0
 - sudo systemctl enable elasticsearch
 
 - curl -X GET 'http://localhost:9200'
+
+### Step-2 ELK
+#####Prerequisites
+```
+A Linux system running Ubuntu 20.04 or 18.04
+Access to a terminal window/command line (Search > Terminal)
+A user account with sudo or root privileges
+Java version 8 or 11 (required for Logstash)
+```
+#####Install Java
+```
+sudo apt update -y
+java -version
+sudo apt install default-jre -y
+java -version
+sudo apt install default-jdk -y
+java -version
+sudo update-alternatives --config java
+```
+####Install Nginx
+```
+sudo apt-get install nginx -y
+systemctl enable nginx && systemctl start nginx
+systemctl start nginx
+```
+
+#### Add Elastic Repository
+```
+cd /tmp
+wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
+sudo apt-get install apt-transport-https -y
+echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee -a /etc/apt/sources.list.d/elastic-7.x.list
+sudo apt-get update -y
+sudo apt-get install elasticsearch -y
+sudo vim /etc/elasticsearch/elasticsearch.yml
+```
+```
+####You should see a configuration file with several different entries and descriptions. Scroll down to find the following entries:
+
+#network.host: 192.168.0.1
+#http.port: 9200
+### Uncomment the lines by deleting the hash (#) sign at the beginning of both lines and replace 192.168.0.1 with localhost.
+
+network.host: localhost
+http.port: 9200
+
+##########By default, JVM heap size is set at 1GB. We recommend setting it to no more than half the size of your total memory. Open the following file for editing:
+
+sudo vim /etc/elasticsearch/jvm.options
+6. Find the lines starting with -Xms and -Xmx. In the example below, the maximum (-Xmx) and minimum (-Xms) size is set to 512MB.
+#-Xms512m
+#-Xmx512m
+-Xms2g
+-Xmx2g
+
+
+sudo systemctl start elasticsearch.service
+
+##### will take some time and if successfull no output is shown
+sudo systemctl enable elasticsearch.service
+sudo systemctl status elasticsearch.service
+
+curl localhost:9200
+```
+
+########################################install kibana
+sudo apt-get install kibana -y
+
+sudo vim /etc/kibana/kibana.yml
+
+2 Delete the # sign at the beginning of the following lines to activate them:
+
+#server.port: 5601
+#server.host: “your-hostname”
+#elasticsearch.hosts: [“http://localhost:9200”]
+The above-mentioned lines should look as follows:
+
+#server.port: 5601
+#server.host: "0.0.0.0"
+#elasticsearch.hosts: [“http://localhost:9200”]
+
+sudo systemctl start kibana
+sudo systemctl enable kibana
+sudo systemctl status kibana
+journalctl -u kibana.service -r
+
+#First, use the openssl command to create an administrative Kibana user which you’ll use to access the Kibana web interface. 
+As an example we will name this account kibanaadmin, but to ensure greater security we recommend that you choose a non-standard name
+for your user that would be difficult to guess.
+
+echo "kibanaadmin:`openssl passwd -apr1`" | sudo tee -a /etc/nginx/htpasswd.users
+
+###user: kibanaadmin
+##passwd: tech@4321
+
+kibanaadmin:$apr1$YWfPJRHz$F39oKtThPXFCAGNi1w5uK0
+kibanaadmin:$apr1$Bltz87b.$t7LWYRteYK5CUgUN1xVcS/
+
+sudo vim /etc/nginx/sites-available/elk.conf
+#######################################################################################################
+
+server {
+    listen 80;
+
+    server_name 3.143.45.219;
+
+    auth_basic "Restricted Access";
+    auth_basic_user_file /etc/nginx/htpasswd.users;
+
+    location / {
+        proxy_pass http://localhost:5601;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+
+
+
+###################################################################################################
+
+
+sudo ln -s /etc/nginx/sites-available/elk.conf /etc/nginx/sites-enabled/elk.conf
+
+
+sudo nginx -t
+sudo systemctl restart nginx
+
+
+
+http://3.143.45.219/status
+
+
+###user: kibanaadmin
+##passwd: tech@4321
+
+http://3.143.45.219/
+
+
+############## install logstash
+
+sudo apt install logstash -y
+
+
+cd /etc/logstash/conf.d
+
+
+###Create a configuration file called 02-beats-input.conf where you will set up your Filebeat input:
+
+sudo vim /etc/logstash/conf.d/02-beats-input.conf
+ 
+#####Insert the following input configuration. This specifies a beats input that will listen on TCP port 5044.
+
+
+input {
+  beats {
+    port => 5044
+  }
+}
+
+
+
+
+#####Next, create a configuration file called 10-syslog-filter.conf, where we will add a filter for system logs, also known as syslogs:
+
+sudo vim /etc/logstash/conf.d/10-syslog-filter.conf
+##Insert the following syslog filter configuration. This example system logs configuration was taken from official Elastic documentation. 
+This filter is used to parse incoming system logs to make them structured and usable by the predefined Kibana dashboards:
+
+
+
+
+filter {
+  if [fileset][module] == "system" {
+    if [fileset][name] == "auth" {
+      grok {
+        match => { "message" => ["%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} sshd(?:\[%{POSINT:[system][auth][pid]}\])?: %{DATA:[system][auth][ssh][event]} %{DATA:[system][auth][ssh][method]} for (invalid user )?%{DATA:[system][auth][user]} from %{IPORHOST:[system][auth][ssh][ip]} port %{NUMBER:[system][auth][ssh][port]} ssh2(: %{GREEDYDATA:[system][auth][ssh][signature]})?",
+                  "%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} sshd(?:\[%{POSINT:[system][auth][pid]}\])?: %{DATA:[system][auth][ssh][event]} user %{DATA:[system][auth][user]} from %{IPORHOST:[system][auth][ssh][ip]}",
+                  "%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} sshd(?:\[%{POSINT:[system][auth][pid]}\])?: Did not receive identification string from %{IPORHOST:[system][auth][ssh][dropped_ip]}",
+                  "%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} sudo(?:\[%{POSINT:[system][auth][pid]}\])?: \s*%{DATA:[system][auth][user]} :( %{DATA:[system][auth][sudo][error]} ;)? TTY=%{DATA:[system][auth][sudo][tty]} ; PWD=%{DATA:[system][auth][sudo][pwd]} ; USER=%{DATA:[system][auth][sudo][user]} ; COMMAND=%{GREEDYDATA:[system][auth][sudo][command]}",
+                  "%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} groupadd(?:\[%{POSINT:[system][auth][pid]}\])?: new group: name=%{DATA:system.auth.groupadd.name}, GID=%{NUMBER:system.auth.groupadd.gid}",
+                  "%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} useradd(?:\[%{POSINT:[system][auth][pid]}\])?: new user: name=%{DATA:[system][auth][user][add][name]}, UID=%{NUMBER:[system][auth][user][add][uid]}, GID=%{NUMBER:[system][auth][user][add][gid]}, home=%{DATA:[system][auth][user][add][home]}, shell=%{DATA:[system][auth][user][add][shell]}$",
+                  "%{SYSLOGTIMESTAMP:[system][auth][timestamp]} %{SYSLOGHOST:[system][auth][hostname]} %{DATA:[system][auth][program]}(?:\[%{POSINT:[system][auth][pid]}\])?: %{GREEDYMULTILINE:[system][auth][message]}"] }
+        pattern_definitions => {
+          "GREEDYMULTILINE"=> "(.|\n)*"
+        }
+        remove_field => "message"
+      }
+      date {
+        match => [ "[system][auth][timestamp]", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+      }
+      geoip {
+        source => "[system][auth][ssh][ip]"
+        target => "[system][auth][ssh][geoip]"
+      }
+    }
+    else if [fileset][name] == "syslog" {
+      grok {
+        match => { "message" => ["%{SYSLOGTIMESTAMP:[system][syslog][timestamp]} %{SYSLOGHOST:[system][syslog][hostname]} %{DATA:[system][syslog][program]}(?:\[%{POSINT:[system][syslog][pid]}\])?: %{GREEDYMULTILINE:[system][syslog][message]}"] }
+        pattern_definitions => { "GREEDYMULTILINE" => "(.|\n)*" }
+        remove_field => "message"
+      }
+      date {
+        match => [ "[system][syslog][timestamp]", "MMM  d HH:mm:ss", "MMM dd HH:mm:ss" ]
+      }
+    }
+  }
+}
+
+
+###Lastly, create a configuration file called 30-elasticsearch-output.conf:
+
+sudo vim /etc/logstash/conf.d/30-elasticsearch-output.conf
+ 
+Insert the following output configuration. Essentially, this output configures Logstash to store the Beats data in Elasticsearch, which is running at localhost:9200, 
+in an index named after the Beat used. The Beat used in this tutorial is Filebeat:
+
+
+output {
+  elasticsearch {
+    hosts => ["localhost:9200"]
+    manage_template => false
+    index => "%{[@metadata][beat]}-%{[@metadata][version]}-%{+YYYY.MM.dd}"
+  }
+}
+
+
+
+
+###Test your Logstash configuration with this command:
+
+sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
+
+
+If there are no syntax errors, your output will display Configuration OK after a few seconds. If you don’t see this in your output, check for any errors that appear in your output and update your configuration to correct them.
+
+If your configuration test is successful, start and enable Logstash to put the configuration changes into effect:
+
+sudo systemctl start logstash
+sudo systemctl enable logstash
+
+
+
 
 # Step_04 installing hadoop as stanalone:
 ```
