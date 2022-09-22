@@ -1,1 +1,27 @@
+# Step_1:- Kafka
+- helm chart link “https://confluentinc.github.io/cp-helm-charts/”
+- GitHub link: “https://github.com/confluentinc/cp-helm-charts”
 
+### create namespace services
+- kubectl create namespace services
+### add helm repo
+- helm repo add confluentinc https://confluentinc.github.io/cp-helm-charts/
+### you just install kafka with custom helm file
+- helm install  -n services confluent-chart confluentinc/cp-helm-charts -f confluent-aws-kafka-zookeeper-deployment.yaml 
+- helm uninstall confluent-chart -n services
+### //create kafka-client pods with yaml file found at location “dmat_eks_deployment_files/confluent-kafka-zookeeper”
+- kubectl -n services apply -f dmat_eks_deployment_files/confluent-kafka-zookeeper
+
+------------------------------------------------------
+- helm install confluent-chart confluentinc/cp-helm-charts -f confluent-values.yaml -n services
+- helm uninstall confluent-chart -n services
+### to create topics
+- ./createkafka.sh 1
+### to create schema
+```
+- kubectl exec -it kafka-client -n services -- curl http://confluent-chart-cp-schema-registry:8081/subjects/dlf-DEV3-value/versions -H 'Content-Type: application/json' --data-binary '{"schema":"{\"type\":\"record\",\"namespace\":\"com.verizon.oneparser.avroschemas\",\"name\":\"Logs\",\"version\":\"1\",\"fields\":[{\"name\":\"dmUser\",\"type\":[\"int\",\"null\"]},{\"name\":\"creationTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"lastLogTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"fileName\",\"type\":[\"string\",\"null\"]},{\"name\":\"size\",\"type\":[\"double\",\"null\"]},{\"name\":\"mdn\",\"type\":[\"string\",\"null\"]},{\"name\":\"imei\",\"type\":[\"string\",\"null\"]},{\"name\":\"id\",\"type\":\"long\"},{\"name\":\"firstname\",\"type\":[\"string\",\"null\"]},{\"name\":\"lastname\",\"type\":[\"string\",\"null\"]},{\"name\":\"isinbuilding\",\"type\":[\"int\",\"null\"]},{\"name\":\"hasgps\",\"type\":[\"int\",\"null\"]},{\"name\":\"emailid\",\"type\":[\"string\",\"null\"]},{\"name\":\"status\",\"type\":[\"string\",\"null\"]},{\"name\":\"modelName\",\"type\":[\"string\",\"null\"]},{\"name\":\"fileLocation\",\"type\":[\"string\",\"null\"]},{\"name\":\"esDataStatus\",\"type\":[\"string\",\"null\"]},{\"name\":\"esRecordCount\",\"type\":[\"double\",\"null\"]},{\"name\":\"importstarttime\",\"type\":[\"long\",\"null\"]},{\"name\":\"importstoptime\",\"type\":[\"long\",\"null\"]},{\"name\":\"filetype\",\"type\":[\"string\",\"null\"]},{\"name\":\"startLogTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"updatedTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"failureInfo\",\"type\":[\"string\",\"null\"]},{\"name\":\"logfilestatusforlv\",\"type\":[\"string\",\"null\"]},{\"name\":\"lvupdatedtime\",\"type\":[\"long\",\"null\"]},{\"name\":\"lverrordetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"statusCsvFiles\",\"type\":[\"string\",\"null\"]},{\"name\":\"csvUpdatedTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"csvErrorDetails\",\"type\":[\"string\",\"null\"]},{\"name\":\"technology\",\"type\":[\"string\",\"null\"]},{\"name\":\"seqStartTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"seqEndTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"hiveStartTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"hiveEndTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"esStartTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"esEndTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"lvfilestarttime\",\"type\":[\"long\",\"null\"]},{\"name\":\"missingVersions\",\"type\":[\"string\",\"null\"]},{\"name\":\"lvPick\",\"type\":[\"string\",\"null\"]},{\"name\":\"lvStatus\",\"type\":[\"string\",\"null\"]},{\"name\":\"lvparseduserid\",\"type\":[\"string\",\"null\"]},{\"name\":\"lvlogfilecnt\",\"type\":[\"long\",\"null\"]},{\"name\":\"processingServer\",\"type\":[\"string\",\"null\"]},{\"name\":\"reportsHiveTblName\",\"type\":[\"string\",\"null\"]},{\"name\":\"compressionstatus\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"eventsCount\",\"type\":[\"int\",\"null\"]},{\"name\":\"ftpstatus\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"userPriorityTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"reprocessedBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"pcapMulti\",\"type\":[\"string\",\"null\"]},{\"name\":\"pcapSingleRm\",\"type\":[\"string\",\"null\"]},{\"name\":\"pcapSingleUm\",\"type\":[\"string\",\"null\"]},{\"name\":\"cpHdfsTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"cpHdfsStartTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"cpHdfsEndTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"hiveDirEpoch\",\"type\":[\"string\",\"null\"]},{\"name\":\"ondemandBy\",\"type\":[\"int\",\"null\"]},{\"name\":\"carrierName\",\"type\":[\"string\",\"null\"]},{\"name\":\"odlvUserId\",\"type\":[\"int\",\"null\"]},{\"name\":\"odlvUpload\",\"type\":[\"boolean\",\"null\"]},{\"name\":\"odlvOnpStatus\",\"type\":[\"string\",\"null\"]},{\"name\":\"odlvLvStatus\",\"type\":[\"string\",\"null\"]},{\"name\":\"zipStartTime\",\"type\":[\"long\",\"null\"]},{\"name\":\"zipEndTime\",\"type\":[\"long\",\"null\"]} , { \"name\": \"logcodes\", \"type\":[\"string\", \"null\"] }, { \"name\": \"triggerCount\", \"type\":[\"int\", \"null\"] }]}"}'
+```
+### to check schema, after you create schema
+- kubectl exec -it kafka-client -n services -- curl http://confluent-chart-cp-schema-registry:8081/subjects
+### to delete schema
+- kubectl exec -it kafka-client -n services -- curl -X DELETE http://confluent-chart-cp-schema-registry:8081/subjects/dlf-DEV3-value
