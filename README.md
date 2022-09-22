@@ -360,10 +360,11 @@ umount /var/backups
 ---------------------------------------------------
 #### Step_03 FTP mounting NSF and Setting up FTP server:
 192.168.6.128 -- masternode    (for ftp client)
+
 192.168.6.119 -- workernode    (for ftp server host)
   
 ##### Step_01: Sharing over NFS server
-##### on host server:
+##### on host server:          ### workernode-1 - 192.168.6.127
 ```
 sudo apt update
 sudo apt install nfs-kernel-server
@@ -379,6 +380,7 @@ sudo systemctl enable nfs-server
 sudo exportfs -v
 ```
 ##### Step_02: Setting Up an NFS Mount Point for Clients
+##### on client server :          ### masternode-0 - 192.168.6.26
 ```
 sudo apt update
 sudo apt install nfs-common
