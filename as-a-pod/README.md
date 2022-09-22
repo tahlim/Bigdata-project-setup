@@ -25,3 +25,122 @@
 - kubectl exec -it kafka-client -n services -- curl http://confluent-chart-cp-schema-registry:8081/subjects
 ### to delete schema
 - kubectl exec -it kafka-client -n services -- curl -X DELETE http://confluent-chart-cp-schema-registry:8081/subjects/dlf-DEV3-value
+
+Step_2:- Hive & HDFS
+
+# Hive Setup On EKS
+
+GitHub link: https://github.com/gradiant/charts//
+
+helm chart link “https://hub.kubeapps.com/charts/gradiant/hive”//
+
+### Create a namespace "hive"
+- kubectl create namespace hive
+### Add helm repo
+- helm repo add gradiant https://gradiant.github.io/charts/
+### Install chart
+- helm install dmat-hive gradiant/hive -n hive
+### get list of pods in hive namespace
+- kubectl -n hive get pods
+
+### create folders/directories  required for onp in the hdfs namenode
+- kubectl -n hive exec -it dmat-hive-hdfs-namenode-0 /bin/bash
+
+- hdfs dfs -mkdir -p /с7000-op-checkpoints
+- hdfs dfs -mkdir -p /oneparser-k8s-c7000
+- hdfs dfs -mkdir -p /spark2-k8s-history
+- hdfs dfs -chmod -R 777 /с7000-op-checkpoints
+- hdfs dfs -chmod -R 777 /oneparser-k8s-c7000
+- hdfs dfs -chmod -R 777 /spark2-k8s-history
+- hdfs dfs -chmod -R 777 /
+- hdfs dfs -ls /
+
+- kubectl -n hive cp geoshapes.tar dmat-hive-hdfs-namenode-0:/tmp 
+- cd /tmp
+- ls
+- tar -xvf geoshapes.tar
+- ls
+- cd geoshapes
+- ls
+- hdfs dfs -mkdir -p /app/assets/geoShapes/
+- hdfs dfs -chmod 777 /app/assets/geoShapes/
+- hdfs dfs -chmod 777 /app/assets/
+- hdfs dfs -chmod 777 /app
+- hdfs dfs -chmod 777 /
+- hdfs dfs -copyFromLocal ./* /app/assets/geoShapes/
+- hdfs dfs -ls /app/assets/geoShapes/
+- hdfs dfs -chmod 777 /app/assets/geoShapes/
+- hdfs dfs -ls /app/assets/geoShapes/
+- hdfs dfs -chmod 777 /app/assets/geoShapes/*
+- hdfs dfs -ls /app/assets/geoShapes/
+
+- kubectl -n hive exec -it dmat-hive-hdfs-namenode-0 -- bash
+- hdfs dfs -ls /
+- hdfs dfs -ls /app
+- hdfs dfs -rm -r /app/assets/geoShapes/
+- hdfs dfs -ls /app/assets
+
+### create database on hive-server
+- kubectl -n hive exec -it dmat-hive-server-0 /bin/bash
+##### go to hive promt by running command hive on the shell, it will open hive shell for us
+- hive
+##### Run command to get the list of databases available
+- SHOW DATABASES;
+##### If dmat_logs is not there, create a database by running below command
+- CREATE DATABASE dmat_logs;
+##### confirm the database dmat_logs created or not
+- SHOW DATABASES;
+##### if database dmat_logs is there then exit from the hive prompt
+- exit or quit or ctrl +D
+##### check for the warehouse and db_logs it in ..you will find it in location “/user/hive/warehouse/dmat_logs.db”
+- hdfs dfs -ls /user/hive/warehouse
+### create database on hive-postgresql server
+- kubectl -n hive exec -it dmat-hive-postgresql-0 /bin/bash
+- psql -d metastore -U hivepassword is “hive”
+##### after entering the database run \l   it will provide you the list of db if dmat_logs is present then exit from it else create db
+- \l
+- CREATE DATABASE dmat_logs;
+##### grant all privilege to it
+- GRANT ALL PRIVILEGES ON DATABASE dmat_logs TO hive;
+##### check again run  \l to verify
+- \l
+
+==================================================
+#### bigdata-values file
+- vim bigdata-values.yaml
+```
+hdfs:
+  persistence:
+  nameNode:
+    enabled: true
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 500Gi
+    nodeSelector:
+      service: "true"
+  dataNode:
+    enabled: true
+    storageClass:
+    accessMode: ReadWriteOnce
+    size: 500Gi
+    nodeSelector:
+      service: "true"
+  httpfs:
+    nodeSelector:
+      service: "true"
+
+hive:
+  nodeSelector:
+    service: "true"
+  persistence:
+    enabled: true
+    size: 100Gi
+hive-metastore:
+  nodeSelector:
+    service: "true"
+  postgres:
+    primary:
+      nodeSelector:
+        service: "true"
+```		
+
