@@ -131,7 +131,7 @@ sudo systemctl restart postgresql
 - psql -U postgres -h 192.168.6.127 -p 5432 dmat_test
 
 # Step_03 installing Elasticsearch:
-Step-2 Elasticsearch only
+### Step-2 Elasticsearch only
 ```
 Step 1 — Installing and Configuring Elasticsearch
 curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
@@ -224,7 +224,8 @@ sudo systemctl status elasticsearch.service
 curl localhost:9200
 ```
 
-########################################install kibana
+####################install kibana
+```
 sudo apt-get install kibana -y
 
 sudo vim /etc/kibana/kibana.yml
@@ -258,7 +259,7 @@ kibanaadmin:$apr1$YWfPJRHz$F39oKtThPXFCAGNi1w5uK0
 kibanaadmin:$apr1$Bltz87b.$t7LWYRteYK5CUgUN1xVcS/
 
 sudo vim /etc/nginx/sites-available/elk.conf
-#######################################################################################################
+################################################
 
 server {
     listen 80;
@@ -278,18 +279,13 @@ server {
     }
 }
 
-
-
-###################################################################################################
-
+###############################################
 
 sudo ln -s /etc/nginx/sites-available/elk.conf /etc/nginx/sites-enabled/elk.conf
 
 
 sudo nginx -t
 sudo systemctl restart nginx
-
-
 
 http://3.143.45.219/status
 
@@ -299,14 +295,12 @@ http://3.143.45.219/status
 
 http://3.143.45.219/
 
-
+```
 ############## install logstash
-
+```
 sudo apt install logstash -y
 
-
 cd /etc/logstash/conf.d
-
 
 ###Create a configuration file called 02-beats-input.conf where you will set up your Filebeat input:
 
@@ -321,16 +315,11 @@ input {
   }
 }
 
-
-
-
 #####Next, create a configuration file called 10-syslog-filter.conf, where we will add a filter for system logs, also known as syslogs:
 
 sudo vim /etc/logstash/conf.d/10-syslog-filter.conf
 ##Insert the following syslog filter configuration. This example system logs configuration was taken from official Elastic documentation. 
 This filter is used to parse incoming system logs to make them structured and usable by the predefined Kibana dashboards:
-
-
 
 
 filter {
@@ -401,9 +390,7 @@ If your configuration test is successful, start and enable Logstash to put the c
 
 sudo systemctl start logstash
 sudo systemctl enable logstash
-
-
-
+```
 
 # Step_04 installing hadoop as stanalone:
 ```
