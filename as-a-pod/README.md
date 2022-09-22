@@ -26,13 +26,16 @@
 ### to delete schema
 - kubectl exec -it kafka-client -n services -- curl -X DELETE http://confluent-chart-cp-schema-registry:8081/subjects/dlf-DEV3-value
 
-Step_2:- Hive & HDFS
+==================================================
+#### kafka-values file
+- vim confluent-values.yaml
+```
+..
+```
 
-# Hive Setup On EKS
-
-GitHub link: https://github.com/gradiant/charts//
-
-helm chart link “https://hub.kubeapps.com/charts/gradiant/hive”//
+# Step_2:- Hive & HDFS
+- GitHub link: https://github.com/gradiant/charts
+- helm chart link “https://hub.kubeapps.com/charts/gradiant/hive”
 
 ### Create a namespace "hive"
 - kubectl create namespace hive
@@ -43,7 +46,7 @@ helm chart link “https://hub.kubeapps.com/charts/gradiant/hive”//
 ### get list of pods in hive namespace
 - kubectl -n hive get pods
 
-### create folders/directories  required for onp in the hdfs namenode
+### create folders  required for onp in the hdfs namenode
 - kubectl -n hive exec -it dmat-hive-hdfs-namenode-0 /bin/bash
 
 - hdfs dfs -mkdir -p /с7000-op-checkpoints
