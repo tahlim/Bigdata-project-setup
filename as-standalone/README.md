@@ -387,8 +387,8 @@ sudo systemctl enable logstash
 ```
 
 # Step_04 installing hadoop as stanalone:
-#####First way ==>
-# HDFS
+##### First way ==>
+# ==> HDFS
  #### Use the following command to update your system before initiating a new installation:
     sudo apt update
  #### Type the following command in your terminal to install OpenJDK 8:
@@ -528,7 +528,7 @@ sudo systemctl enable logstash
 ![image](https://user-images.githubusercontent.com/103019032/191734724-053f96b3-62f8-438e-b29b-0121315a2679.png)
 
 
-## HIVE
+# ==> HIVE
 #### Download and Untar Hive,go to this link
      https://hive.apache.org/downloads.html
 ![capture9](https://user-images.githubusercontent.com/103019032/191893410-3956553d-6318-43b0-8e9d-938e00574ddc.PNG)
