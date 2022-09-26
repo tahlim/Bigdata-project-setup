@@ -257,10 +257,9 @@ echo "kibanaadmin:`openssl passwd -apr1`" | sudo tee -a /etc/nginx/htpasswd.user
 
 kibanaadmin:$apr1$YWfPJRHz$F39oKtThPXFCAGNi1w5uK0
 kibanaadmin:$apr1$Bltz87b.$t7LWYRteYK5CUgUN1xVcS/
-
+```
 sudo vim /etc/nginx/sites-available/elk.conf
-################################################
-
+```
 server {
     listen 80;
 
@@ -278,11 +277,9 @@ server {
         proxy_cache_bypass $http_upgrade;
     }
 }
-
-###############################################
-
+```
+```
 sudo ln -s /etc/nginx/sites-available/elk.conf /etc/nginx/sites-enabled/elk.conf
-
 
 sudo nginx -t
 sudo systemctl restart nginx
@@ -376,9 +373,6 @@ output {
   }
 }
 
-
-
-
 ###Test your Logstash configuration with this command:
 
 sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
@@ -393,6 +387,203 @@ sudo systemctl enable logstash
 ```
 
 # Step_04 installing hadoop as stanalone:
+#####First way ==>
+# HDFS
+ #### Use the following command to update your system before initiating a new installation:
+    sudo apt update
+ #### Type the following command in your terminal to install OpenJDK 8:
+    sudo apt install openjdk-8-jdk -y
+ #### Once the installation process is complete, verify the Java version    
+    java -version; javac -version
+ #### Install the OpenSSH server and client using the following command:
+    sudo apt install openssh-server openssh-client -y
+ #### -Utilize the adduser command to create a new Hadoop user:
+    sudo adduser hdoop
+ #### Switch to the newly created user and enter the corresponding password
+    su - hdoop
+ #### Enable Passwordless SSH for Hadoop User
+    ssh-keygen -t rsa -P '' -f ~/.ssh/id_rsa
+ #### Use the cat command to store the public key as authorized_keys in the ssh directory:
+    cat ~/.ssh/id_rsa.pub >> ~/.ssh/authorized_keys
+ #### Set the permissions for your user with the chmod command:
+    chmod 0600 ~/.ssh/authorized_keys
+ #### Verify everything is set up correctly by using the hdoop user to SSH to localhost:
+    ssh localhost
+ #### Download and Install Hadoop on Ubuntu on this link
+    https://hadoop.apache.org/releases.html
+ #### Use the provided mirror link and download the Hadoop package with the wget command:
+    wget https://dlcdn.apache.org/hadoop/common/hadoop-3.3.4/hadoop-3.3.4.tar.gz 
+ #### Once the download is complete, extract the files to initiate the Hadoop installation:
+    tar xzf hadoop-3.3.4.tar.gz
+ #### Configure Hadoop
+  nano .bashrc
+#### copy this configuration in .bashrc
+    # Hadoop Related Options
+    export HADOOP_HOME=/home/hdoop/hadoop-3.3.4
+    export HADOOP_INSTALL=$HADOOP_HOME
+    export HADOOP_MAPRED_HOME=$HADOOP_HOME
+    export HADOOP_COMMON_HOME=$HADOOP_HOME
+    export HADOOP_HDFS_HOME=$HADOOP_HOME
+    export YARN_HOME=$HADOOP_HOME
+    export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
+    export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
+    export HADOOP_OPTS"-Djava.library.path=$HADOOP_HOME/lib/nativ"p Environment Variables (bashrc)
+![Capture](https://user-images.githubusercontent.com/103019032/191722996-ca371d24-1b32-437d-b098-f8df94b684fd.PNG)
+## Edit hadoop-env.sh File
+#### The hadoop-env.sh file serves as a master file to configure YARN, HDFS, MapReduce, and Hadoop-related project settings.
+    nano hadoop-3.3.4/etc/hadoop/hadoop-env.sh
+![capture4](https://user-images.githubusercontent.com/103019032/191726856-028dee97-1b83-42e1-ad8f-4d5772a40881.PNG)
+#### If you have installed the same version as presented in the first part of this tutorial, add the following line:
+    export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+![Capture2](https://user-images.githubusercontent.com/103019032/191724808-d61ef9b0-739a-4da2-b006-238048e31916.PNG)
+#### Use the provided path to find the OpenJDK directory with the following command:
+    readlink -f /usr/bin/javac
+#### To set up Hadoop in a pseudo-distributed mode, you need to specify the URL for your NameNode, and the temporary directory Hadoop uses for the map and reduce process.
+#### Open the core-site.xml file in a text editor:
+    nano hadoop-3.3.4/etc/hadoop/core-site.xml
+![capture5](https://user-images.githubusercontent.com/103019032/191727595-4117ab43-bddc-4d9d-9b95-6b8bf5019d23.PNG)
+![image](https://user-images.githubusercontent.com/103019032/191727809-c8baf7f8-e3a4-4c8f-aded-b572a3e7fc69.png)
+#### Add the following configuration to override the default values for the temporary directory and add your HDFS URL to replace the default local file system setting:
+     <configuration>
+     <property>
+     <name>hadoop.tmp.dir</name>
+     <value>/home/hdoop/tmpdata</value>
+     </property>
+     <property>
+     <name>fs.default.name</name>
+     <value>hdfs://127.0.0.1:9000</value>
+     </property>
+     </configuration>
+#### Edit hdfs-site.xml File
+     nano hadoop-3.3.4/etc/hadoop/hdfs-site.xml
+![capture6](https://user-images.githubusercontent.com/103019032/191728600-c0933484-f394-4db9-af81-26a73cc3019d.PNG)
+#### copy xml file
+      <configuration>
+      <property>
+      <name>dfs.data.dir</name>
+      <value>/home/hdoop/dfsdata/namenode</value>
+      </property>
+      <property>
+      <name>dfs.data.dir</name>
+      <value>/home/hdoop/dfsdata/datanode</value>
+      </property>
+      <property>
+      <name>dfs.replication</name>
+      <value>1</value>
+      </property>
+      </configuration>
+ #### Edit mapred-site.xml File
+      nano hadoop-3.3.4/etc/hadoop/mapred-site.xml
+ ![capture7](https://user-images.githubusercontent.com/103019032/191731283-ce41941f-7799-4067-af9c-41846cff7816.PNG)
+ #### copy xml file
+       <configuration>
+       <property>
+       <name>mapreduce.framework.name</name>
+       <value>yarn</value>
+       </property>
+       </configuration>
+#### Edit yarn-site.xml File
+#### The yarn-site.xml file is used to define settings relevant to YARN. It contains configurations for the Node Manager, Resource Manager, Containers, and Application Master.
+      nano hadoop-3.3.4/etc/hadoop/yarn-site.xml
+![capture8](https://user-images.githubusercontent.com/103019032/191732089-e84fa7af-01f9-4af9-b2eb-eb9aa0eb613c.PNG)
+#### copy xml file
+      <configuration>
+      <property>
+      <name>yarn.nodemanager.aux-services</name>
+      <value>mapreduce_shuffle</value>
+      </property>
+      <property>
+      <name>yarn.nodemanager.aux-services.mapreduce.shuffle.class</name>
+      <value>org.apache.hadoop.mapred.ShuffleHandler</value>
+      </property>
+      <property>
+      <name>yarn.resourcemanager.hostname</name>
+      <value>127.0.0.1</value>
+      </property>
+      <property>
+      <name>yarn.acl.enable</name>
+      <value>0</value>
+      </property>
+      <property>
+      <name>yarn.nodemanager.env-whitelist</name>   
+      <value>JAVA_HOME,HADOOP_COMMON_HOME,HADOOP_HDFS_HOME,HADOOP_CONF_DIR,CLASSPATH_PERPEND_DISTCACHE,HADOOP_YARN_HOME,HADOOP_MAPRED_HOME</value>
+      </property>
+      </configuration>
+ #### It is important to format the NameNode before starting Hadoop services for the first time:
+      hdfs namenode -format
+ ![image](https://user-images.githubusercontent.com/103019032/191733361-1c442753-ca19-4d3b-8550-e5c280ec5b2d.png)
+ 
+ #### Start Hadoop Cluster
+#### Navigate to the hadoop-3.2.1/sbin directory and execute the following commands to start the NameNode and DataNode:
+      ./start-dfs.sh
+![image](https://user-images.githubusercontent.com/103019032/191734003-316171e8-0cfc-4886-b5f4-4e0619e357e6.png)
+#### Once the namenode, datanodes, and secondary namenode are up and running, start the YARN resource and nodemanagers by typing:
+      ./start-yarn.sh
+![image](https://user-images.githubusercontent.com/103019032/191734216-996db6eb-ccef-4327-8050-e87f69d4aeb9.png)
+#### Type this simple command to check if all the daemons are active and running as Java processes:
+     jps
+![image](https://user-images.githubusercontent.com/103019032/191734386-511cc3a6-b2b0-4eb9-b206-b86fe504c308.png)
+#### Access Hadoop UI from Browser
+     http://localhost:9870
+![image](https://user-images.githubusercontent.com/103019032/191734724-053f96b3-62f8-438e-b29b-0121315a2679.png)
+
+
+## HIVE
+#### Download and Untar Hive,go to this link
+     https://hive.apache.org/downloads.html
+![capture9](https://user-images.githubusercontent.com/103019032/191893410-3956553d-6318-43b0-8e9d-938e00574ddc.PNG)
+![capture10](https://user-images.githubusercontent.com/103019032/191893571-56b834f5-25f1-4fb5-9d75-c9a841d77f5c.PNG)
+![capture11](https://user-images.githubusercontent.com/103019032/191893662-37ddf626-189d-4281-a56f-5cc1876e9775.PNG)
+#### Alternatively, access your Ubuntu command line and download the compressed Hive files using and the wget command followed by the download path:
+     wget https://downloads.apache.org/hive/hive-3.1.2/apache-hive-3.1.2-bin.tar.gz
+#### Once the download process is complete, untar the compressed Hive package:
+     tar xzf apache-hive-3.1.2-bin.tar.gz
+#### Configure Hive Environment Variables (bashrc)
+     nano .bashrc
+#### Append the following Hive environment variables to the .bashrc file:
+     export HIVE_HOME= "home/hdoop/apache-hive-3.1.2-bin"
+     export PATH=$PATH:$HIVE_HOME/bin
+![capture12](https://user-images.githubusercontent.com/103019032/191895189-8831c373-8f90-4c49-a62c-49735a65143c.PNG)
+#### Edit hive-config.sh file
+     nano apache-hive-3.1.2-bin/bin/hive-config.sh
+![capture13](https://user-images.githubusercontent.com/103019032/191896225-2f2925b6-0b3e-4a93-8071-9c6a5bd403c3.PNG)
+![image](https://user-images.githubusercontent.com/103019032/191896302-945031a1-2ac8-406f-a362-47be06a99278.png)
+#### Create Hive Directories in HDFS
+#### Create tmp Directory
+      hdfs dfs -mkdir /tmp
+      hdfs dfs -chmod g+w /tmp
+      hdfs dfs -ls /
+#### Create warehouse Directory
+      hdfs dfs -mkdir -p /user/hive/warehouse
+#### Add write and execute permissions to warehouse group members:
+      hdfs dfs -chmod g+w /user/hive/warehouse
+#### Check if the permissions were added correctly:
+      hdfs dfs -ls /user/hive
+#### Initiate Derby Database
+      apache-hive-3.1.2-bin/bin/schematool -dbType derby -initSchema
+#### After doing this command the message shown this type:
+![image](https://user-images.githubusercontent.com/103019032/191899286-3fe7a1d3-e197-406a-a743-ca65b7299af2.png)
+#### How to Fix guava Incompatibility Error in Hive:
+      ls apache-hive-3.1.2-bin/lib
+![image](https://user-images.githubusercontent.com/103019032/191917489-1248ff91-c0dc-40ff-b438-d1b791e5cce4.png)
+#### Locate the guava jar file in the Hadoop lib directory as well:
+      ls hadoop-3.3.4/share/hadoop/hdfs/lib
+![image](https://user-images.githubusercontent.com/103019032/191918520-3ea8d545-fbba-48f9-b413-abcd0111efa1.png)
+#### The two listed versions are not compatible and are causing the error. Remove the existing guava file from the Hive lib directory:
+      rm apache-hive-3.1.2-bin/lib/guava-19.0.jar
+#### Copy the guava file from the Hadoop lib directory to the Hive lib directory:
+      cp hadoop-3.3.4/share/hadoop/hdfs/lib/guava-27.0-jre.jar apache-hive-3.1.2-bin/lib/
+#### Use the schematool command once again to initiate the Derby database:
+      $apache-hive-3.1.2-bin/bin/schematool -dbType derby -initSchema
+#### Start the Hive command-line interface using the following commands:
+      apache-hive-3.1.2-bin$ bin/hive
+![image](https://user-images.githubusercontent.com/103019032/191919454-87cf43c3-75f3-41d3-b908-03c57b36ae3a.png)
+#### I have used some command for creating a database and show the database:
+      create database <database_name>;
+      show databases;
+![capture14](https://user-images.githubusercontent.com/103019032/191921010-820cf2e9-dc7b-42fa-a2b8-9da3a8722fe7.PNG)
+
+##### Second way ==>
 ```
 sudo apt update
 sudo apt install openjdk-8-jdk -y
