@@ -430,6 +430,9 @@ sudo systemctl enable logstash
     export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
     export HADOOP_OPTS"-Djava.library.path=$HADOOP_HOME/lib/nativ"
 ![Capture](https://user-images.githubusercontent.com/103019032/191722996-ca371d24-1b32-437d-b098-f8df94b684fd.PNG)
+
+source ~/.bashrc
+
 ## Edit hadoop-env.sh File
 #### The hadoop-env.sh file serves as a master file to configure YARN, HDFS, MapReduce, and Hadoop-related project settings.
     nano hadoop-3.3.4/etc/hadoop/hadoop-env.sh
@@ -452,7 +455,7 @@ sudo systemctl enable logstash
      </property>
      <property>
      <name>fs.default.name</name>
-     <value>hdfs://127.0.0.1:9000</value>
+     <value>hdfs://localhost:9000</value>
      </property>
      </configuration>
 #### Edit hdfs-site.xml File
@@ -499,7 +502,7 @@ sudo systemctl enable logstash
       </property>
       <property>
       <name>yarn.resourcemanager.hostname</name>
-      <value>127.0.0.1</value>
+      <value>localhost</value>
       </property>
       <property>
       <name>yarn.acl.enable</name>
