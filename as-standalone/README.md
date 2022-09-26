@@ -428,7 +428,7 @@ sudo systemctl enable logstash
     export YARN_HOME=$HADOOP_HOME
     export HADOOP_COMMON_LIB_NATIVE_DIR=$HADOOP_HOME/lib/native
     export PATH=$PATH:$HADOOP_HOME/sbin:$HADOOP_HOME/bin
-    export HADOOP_OPTS"-Djava.library.path=$HADOOP_HOME/lib/nativ"p Environment Variables (bashrc)
+    export HADOOP_OPTS"-Djava.library.path=$HADOOP_HOME/lib/nativ"
 ![Capture](https://user-images.githubusercontent.com/103019032/191722996-ca371d24-1b32-437d-b098-f8df94b684fd.PNG)
 ## Edit hadoop-env.sh File
 #### The hadoop-env.sh file serves as a master file to configure YARN, HDFS, MapReduce, and Hadoop-related project settings.
