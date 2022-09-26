@@ -152,6 +152,7 @@ path.data: /home/ubuntu/elasticsearch-6.7.1
 
 #network.host: 192.168.0.1
 network.host: 0.0.0.0
+transport.host: localhost             #####  note: if you want to access is from outside then you can add this line
 
 #http.port: 9200
 ```
