@@ -587,7 +587,7 @@ export HADOOP_HOME=/home/hdoop/hadoop-3.3.4
 #### Copy the guava file from the Hadoop lib directory to the Hive lib directory:
       cp hadoop-3.3.4/share/hadoop/hdfs/lib/guava-27.0-jre.jar apache-hive-3.1.2-bin/lib/
 #### Use the schematool command once again to initiate the Derby database:
-      $apache-hive-3.1.2-bin/bin/schematool -dbType derby -initSchema
+      apache-hive-3.1.2-bin/bin/schematool -dbType derby -initSchema
 #### Start the Hive command-line interface using the following commands:
       apache-hive-3.1.2-bin$ bin/hive
 ![image](https://user-images.githubusercontent.com/103019032/191919454-87cf43c3-75f3-41d3-b908-03c57b36ae3a.png)
