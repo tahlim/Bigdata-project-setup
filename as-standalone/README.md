@@ -534,6 +534,8 @@ source ~/.bashrc
 
 
 # ==> HIVE
+- su - hdoop
+- ssh localhost
 #### Download and Untar Hive,go to this link
      https://hive.apache.org/downloads.html
 ![capture9](https://user-images.githubusercontent.com/103019032/191893410-3956553d-6318-43b0-8e9d-938e00574ddc.PNG)
