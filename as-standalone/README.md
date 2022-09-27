@@ -553,11 +553,12 @@ source ~/.bashrc
 ![capture12](https://user-images.githubusercontent.com/103019032/191895189-8831c373-8f90-4c49-a62c-49735a65143c.PNG)
 #### Edit hive-config.sh file
      nano apache-hive-3.1.2-bin/bin/hive-config.sh
-![capture13](https://user-images.githubusercontent.com/103019032/191896225-2f2925b6-0b3e-4a93-8071-9c6a5bd403c3.PNG)
 ![image](https://user-images.githubusercontent.com/103019032/191896302-945031a1-2ac8-406f-a362-47be06a99278.png)
+
 add these two lines:
 
 export HIVE_CONF_DIR=/home/hdoop/apache-hive-3.1.2-bin
+
 export HADOOP_HOME=/home/hdoop/hadoop-3.3.4
 
 #### Create Hive Directories in HDFS
