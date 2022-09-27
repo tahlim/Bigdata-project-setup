@@ -131,7 +131,7 @@ sudo systemctl restart postgresql
 - psql -U postgres -h 192.168.6.127 -p 5432 dmat_test
 
 # Step_03 installing Elasticsearch:
-### Step-2 Elasticsearch only
+### Step-1 Elasticsearch only
 ```
 Step 1 — Installing and Configuring Elasticsearch
 curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
@@ -530,6 +530,7 @@ source ~/.bashrc
 #### Access Hadoop UI from Browser
      http://localhost:9870
 ![image](https://user-images.githubusercontent.com/103019032/191734724-053f96b3-62f8-438e-b29b-0121315a2679.png)
+![image](https://user-images.githubusercontent.com/50055329/192437980-1e61208c-2f59-47cf-a149-e67cac444379.png)
 
 
 # ==> HIVE
