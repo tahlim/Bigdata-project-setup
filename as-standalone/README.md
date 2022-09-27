@@ -197,13 +197,8 @@ sudo apt-get install elasticsearch -y
 sudo vim /etc/elasticsearch/elasticsearch.yml
 ```
 ```
-####You should see a configuration file with several different entries and descriptions. Scroll down to find the following entries:
-
-#network.host: 192.168.0.1
-#http.port: 9200
-### Uncomment the lines by deleting the hash (#) sign at the beginning of both lines and replace 192.168.0.1 with localhost.
-
-network.host: localhost
+network.host: 0.0.0.0
+transport.host: localhost             #####  note: if you want to access is from outside then you can add this line
 http.port: 9200
 
 ##########By default, JVM heap size is set at 1GB. We recommend setting it to no more than half the size of your total memory. Open the following file for editing:
@@ -215,7 +210,6 @@ sudo vim /etc/elasticsearch/jvm.options
 -Xms2g
 -Xmx2g
 
-
 sudo systemctl start elasticsearch.service
 
 ##### will take some time and if successfull no output is shown
@@ -225,7 +219,7 @@ sudo systemctl status elasticsearch.service
 curl localhost:9200
 ```
 
-####################install kibana
+############## installing kibana
 ```
 sudo apt-get install kibana -y
 
