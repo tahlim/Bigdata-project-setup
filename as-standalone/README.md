@@ -384,6 +384,7 @@ sudo systemctl enable logstash
 # Step_04 installing hadoop as stanalone:
 ##### First way ==>
 # ==> HDFS
+ #### you can use this link to install //  https://tecadmin.net/install-hadoop-on-ubuntu-20-04/
  #### Use the following command to update your system before initiating a new installation:
     sudo apt update
  #### Type the following command in your terminal to install OpenJDK 8:
