@@ -147,10 +147,11 @@ hive-metastore:
         service: "true"
 ```		
 
-# Step_2:- spark-operator
-
+# Step_2:- Spark-operator
 //helm chart link “https://googlecloudplatform.github.io/spark-on-k8s-operator”//
+
 //GitHub link: “https://github.com/GoogleCloudPlatform/spark-on-k8s-operator”//
+```
 //Add spark operator repo
 helm repo add spark-operator https://googlecloudplatform.github.io/spark-on-k8s-operator
 //create a namespace “spark”//
@@ -162,7 +163,10 @@ kubectl create serviceaccount spark --namespace=spark
 //create clusterrolebinding spark-role in ns spark//
 kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount=default:spark --namespace=spark
 //install helm chart with our custom values files which contains values as per our project//
-//you can find the values file at location : “dmat_eks_deployment_files/modified_values_file_aws/spark-operator-aws-values.yaml
-helm install spark-operator spark-operator/spark-operator --namespace spark-operator -f dmat_eks_deployment_files/modified_values_file_aws/spark-operator-aws-values.yaml
+helm install spark-operator spark-operator/spark-operator --namespace spark-operator -f dmat_eks_deployment_files/spark-operator-aws-values.yaml
+
+helm install -n spark spart-operator spark-operator/spark-operator
+
 //get the list of pods related to spark operator//
 kubectl -n spark-operator get pods
+```
