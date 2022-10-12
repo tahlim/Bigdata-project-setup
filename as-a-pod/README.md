@@ -165,7 +165,7 @@ kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount
 //install helm chart with our custom values files which contains values as per our project//
 helm install spark-operator spark-operator/spark-operator --namespace spark-operator -f dmat_eks_deployment_files/spark-operator-aws-values.yaml
 
-helm install -n spark spart-operator spark-operator/spark-operator
+helm install -n spark spark-operator spark-operator/spark-operator
 
 //get the list of pods related to spark operator//
 kubectl -n spark-operator get pods
