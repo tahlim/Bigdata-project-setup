@@ -1,4 +1,4 @@
-# ====================> Hadoop <======================
+# ============> Hadoop <=============
 Hadoop:- open source framework, data management tool
 data management tool:- data store, manage, scale out storage(manually node add krna)
 Hadoop components:- 1.HDFS & Mapreduce   2. HDFS & Yarn
