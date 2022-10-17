@@ -1,5 +1,5 @@
 # ============> Hadoop <=============
-``
+```
 Hadoop:- open source framework, data management tool
 data management tool:- data store, manage, scale out storage(manually node add krna)
 Hadoop components:- 1.HDFS & Mapreduce   2. HDFS & Yarn
@@ -17,4 +17,4 @@ Let us take a detailed look at Hadoop HDFS in this part of the What is Hadoop ar
 Hadoop HDFS
 Data is stored in a distributed manner in HDFS. There are two components of HDFS - name node and data node. While there is only one name node, there can be multiple data nodes.
 HDFS is specially designed for storing huge datasets in commodity hardware.
-``
+```
